@@ -21,8 +21,18 @@ def puzzle_check(puzzle):
 
 #inputs list, ensures values are 0-8 in some order
 def validate(puzzle_input):
-	valid_list = [0, 1, 2, 3,4, 5, 6, 7, 8]
+	valid_list = [0, 1, 2, 3, 4, 5, 6, 7, 8]
 	return True if Counter(puzzle_input) == Counter(valid_list) else False
+
+def puzzle_converter(args):
+	puzzle = []
+	row = []
+	for i in range(0, len(args)):
+		row.append(int(args[i]))
+		if len(row) == 3:
+			puzzle.append(row)
+			row = []
+	return puzzle
 
 #swaps tiles and returns new puzzle
 def swap(puzzle, tile1, tile2):
