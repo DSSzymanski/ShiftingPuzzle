@@ -5,6 +5,7 @@ Created on Mon May 11 13:31:17 2020
 @author: Daniel
 """
 from collections import Counter
+from copy import deepcopy
 
 #Correct puzzle format
 CORRECT_PUZZLE = [
@@ -32,3 +33,14 @@ def swap(puzzle, tile1, tile2):
 def puzzle_printer(puzzle):
 	for i in range(3):
 		print(puzzle[i])
+	
+#converts a solution of coordinate swaps into a list of individual puzzle states
+#that represent solution
+def state_maker(init_puzzle, solution):
+	states = [init_puzzle]
+	curr_puzzle = deepcopy(init_puzzle)
+	for step in solution:
+		curr_puzzle = deepcopy(curr_puzzle)
+		swap(curr_puzzle, step[0], step[1])
+		states.append(curr_puzzle)
+	return states

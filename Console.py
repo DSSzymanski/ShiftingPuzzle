@@ -10,7 +10,7 @@ import Puzzle
 
 def console_solve(argv):
 	puzzle = split_input(argv)
-	
+
 	start_time = perf_counter()
 	ans = H.heuristic(puzzle)
 	end_time = perf_counter()
@@ -19,11 +19,12 @@ def console_solve(argv):
 	Puzzle.puzzle_printer(puzzle)
 	for a in ans:
 		Puzzle.swap(puzzle, a[0], a[1])
-		print("\n" + str(puzzle[a[0][0]][a[0][1]]) + " -> " +\
+		print("\n" + "Tile: " + str(puzzle[a[0][0]][a[0][1]]) + " -> " +\
 		   str(puzzle[a[1][0]][a[1][1]]))
-		print(a[0], "->", a[1], "\n")
+		print("Location: ", a[0], "->", a[1], "\n")
+		print("State:")
 		Puzzle.puzzle_printer(puzzle)
-	print(f"Steps: {len(ans)}\n Time: {end_time - start_time}")
+	print(f"\nSteps: {len(ans)}\nTime: {end_time - start_time}")
 	
 def split_input(args):
 	puzzle = []
