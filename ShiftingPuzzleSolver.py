@@ -17,6 +17,7 @@ class ShiftingPuzzleGUI(tkinter.Tk):
 		self._frame = None
 		self.get_puzzle_frame()
 	
+	#switch to frame for inputting puzzle
 	def get_puzzle_frame(self):
 		new_frame = PuzzleFrame(self)
 		if self._frame is not None: 
@@ -24,7 +25,11 @@ class ShiftingPuzzleGUI(tkinter.Tk):
 		self._frame = new_frame
 		self._frame.pack()
 		
+	#switch to frame to view soln set
 	def get_soln_frame(self, soln_set):
+		"""
+		:param soln_set: list of puzzle states for solution
+		"""
 		new_frame = SolnFrame(self, soln_set)
 		if self._frame is not None:
 			self._frame.destroy()
@@ -50,6 +55,9 @@ class PuzzleFrame(tkinter.Frame):
 		
 	#increments button values by 1, after 8 gets set to 0
 	def button_increment(self, button):
+		"""
+		:param button: button to have value incremented
+		"""
 		num = button.cget('text')
 		num += 1
 		if num > 8: num = 0
@@ -78,18 +86,21 @@ class PuzzleFrame(tkinter.Frame):
 #GUI for solution states
 class SolnFrame(tkinter.Frame):
 	def __init__(self, master, soln_set):
+		"""
+		:param soln_set: list of puzzle states for solution
+		"""
 		tkinter.Frame.__init__(self, master)
 		self._pointer = 0
 		self._tiles_list = []
 		self._soln_set = soln_set
 		
-		self._get_images()
+		self._get_images() 
 		self._init_tiles()
 		self._init_btns()
 		self._update_tiles()
 		
+	#setup btn images
 	def _get_images(self):
-		#setup btn images
 		forward_img_path = r"images/forward_arrow.png"
 		backwards_img_path = r"images/backwards_arrow.png"
 		self.forward_arrow = tkinter.PhotoImage(file=forward_img_path)
@@ -104,7 +115,8 @@ class SolnFrame(tkinter.Frame):
 			for x in range(row_len):
 				self._tiles_list[y].append(tkinter.Button(self, padx=40, pady=20, state=tkinter.DISABLED))
 				self._tiles_list[y][x].grid(row=x, column=y)
-				
+	
+	#initializes forwards and backwards buttons and adds them to grid			
 	def _init_btns(self):
 		self.forward = tkinter.Button(self, image=self.forward_arrow, command=lambda: self._forward())
 		self.forward.grid(row=3, column=2)
@@ -112,12 +124,21 @@ class SolnFrame(tkinter.Frame):
 		self.backwards.grid(row=3, column=0)
 		self.grid_rowconfigure(3, minsize=50)
 		
+	"""
+	maps tiles to new state after forward/backwards button is clicked
+	or solution frame is initialized
+	"""
 	def _update_tiles(self):
 		for y in range(3):
 			for x in range(3):
 				self._tiles_list[y][x]["text"] = self._soln_set[self._pointer][x][y]
 		self._update_btns()
 	
+	"""
+	checks which state soln frame is in with pointer. 
+	Disables backwards btn @ state 0
+	Disables forwards btn @ last state
+	"""
 	def _update_btns(self):
 		self.backwards["state"] = self.forward["state"] = tkinter.NORMAL
 		if self._pointer == 0:
@@ -125,10 +146,12 @@ class SolnFrame(tkinter.Frame):
 		if self._pointer == len(self._soln_set)-1:
 			self.forward["state"] = tkinter.DISABLED
 	
+	#increments state pointer forward one state and updates tiles
 	def _forward(self): 
 		self._pointer += 1
 		self._update_tiles()
 	
+	#decrements state pointer backwards one state and updates tiles
 	def _backwards(self):
 		self._pointer -= 1
 		self._update_tiles()
