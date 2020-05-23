@@ -9,6 +9,7 @@ import Heuristic as H
 import sys
 import tkinter
 from tkinter import messagebox
+from math import floor
 
 class ShiftingPuzzleGUI(tkinter.Tk):
 	def __init__(self):
@@ -33,38 +34,19 @@ class ShiftingPuzzleGUI(tkinter.Tk):
 class PuzzleFrame(tkinter.Frame):
 	def __init__(self, master):
 		tkinter.Frame.__init__(self, master)
-		self.tiles_list = []
+		self._tiles_list = []
 		self._init_tiles()
 		self.solve_btn = tkinter.Button(self, text="Solve", command=lambda: self.solve())
 		self.solve_btn.grid(row=3, column=1)
 		self.ERROR_MSG = "Tiles must represent 0-8, not repeating. Tiles 0-2 represents the top row, 3-5 the middle, and 6-8 the bottom row."
-		
-	#initialize all tiles, tile list, and tile locations in frame
+	
+	#sets up tiles in grid
 	def _init_tiles(self):
-		#init
-		self.tile_0_0 = tkinter.Button(self, text=0, padx=40, pady=20, command=lambda: self.button_increment(self.tile_0_0))
-		self.tile_0_1 = tkinter.Button(self, text=0, padx=40, pady=20, command=lambda: self.button_increment(self.tile_0_1))
-		self.tile_0_2 = tkinter.Button(self, text=0, padx=40, pady=20, command=lambda: self.button_increment(self.tile_0_2))
-		self.tile_1_0 = tkinter.Button(self, text=0, padx=40, pady=20, command=lambda: self.button_increment(self.tile_1_0))
-		self.tile_1_1 = tkinter.Button(self, text=0, padx=40, pady=20, command=lambda: self.button_increment(self.tile_1_1))
-		self.tile_1_2 = tkinter.Button(self, text=0, padx=40, pady=20, command=lambda: self.button_increment(self.tile_1_2))
-		self.tile_2_0 = tkinter.Button(self, text=0, padx=40, pady=20, command=lambda: self.button_increment(self.tile_2_0))
-		self.tile_2_1 = tkinter.Button(self, text=0, padx=40, pady=20, command=lambda: self.button_increment(self.tile_2_1))
-		self.tile_2_2 = tkinter.Button(self, text=0, padx=40, pady=20, command=lambda: self.button_increment(self.tile_2_2))
-
-		self.tiles_list = [self.tile_0_0, self.tile_0_1, self.tile_0_2, \
-					 self.tile_1_0, self.tile_1_1, self.tile_1_2, self.tile_2_0, \
-					 self.tile_2_1, self.tile_2_2]
-		#show
-		self.tile_0_0.grid(row=0, column=0)
-		self.tile_0_1.grid(row=0, column=1)
-		self.tile_0_2.grid(row=0, column=2)
-		self.tile_1_0.grid(row=1, column=0)
-		self.tile_1_1.grid(row=1, column=1)
-		self.tile_1_2.grid(row=1, column=2)
-		self.tile_2_0.grid(row=2, column=0)
-		self.tile_2_1.grid(row=2, column=1)
-		self.tile_2_2.grid(row=2, column=2)
+		tile_size = 9
+		row_len = 3
+		for i in range(tile_size):
+			self._tiles_list.append(tkinter.Button(self, text=i, padx=40, pady=20))
+			self._tiles_list[i].grid(row=floor(i/row_len), column=i%row_len)
 		
 	#increments button values by 1, after 8 gets set to 0
 	def button_increment(self, button):
@@ -80,24 +62,67 @@ class PuzzleFrame(tkinter.Frame):
 	"""
 	def solve(self):
 		puzzle = self.get_tiles()
-		#puzzle = [8,1,2,3,4,5,6,7,0]
+		puzzle = [8,1,2,3,4,5,6,7,0]
 		if Puzzle.validate(puzzle):
 			puzzle = Puzzle.puzzle_converter(puzzle)
 			soln = H.heuristic(puzzle)
 			soln_set = Puzzle.state_maker(puzzle, soln)
 			self.master.get_soln_frame(soln_set)
 		else:
-			tkinter.messagebox.showerror(title="Input error", message=self.ERROR_MSG)
+			messagebox.showerror(title="Input error", message=self.ERROR_MSG)
 	
 	#gets list of puzzle tiles
 	def get_tiles(self):
-		return [tile.cget("text") for tile in self.tiles_list]
+		return [tile.cget("text") for tile in self._tiles_list]
 		
+#GUI for solution states
 class SolnFrame(tkinter.Frame):
 	def __init__(self, master, soln_set):
 		tkinter.Frame.__init__(self, master)
-		self.soln_set = soln_set
-		tkinter.Button(self, text="Go to puzzle", command=lambda: master.get_puzzle_frame()).pack()
+		self._pointer = 0
+		self._tiles_list = []
+		self._soln_set = soln_set
+		
+		self._init_tiles()
+		self._init_btns()
+		
+	#sets up tiles in grid
+	def _init_tiles(self):
+		col_len = 3
+		row_len = 3
+		for y in range(col_len):
+			self._tiles_list.append([])
+			for x in range(row_len):
+				self._tiles_list[y].append(tkinter.Button(self, padx=40, pady=20, state=tkinter.DISABLED))
+				self._tiles_list[y][x].grid(row=x, column=y)
+		self._update_tiles()
+				
+	def _init_btns(self):
+		self.forward = tkinter.Button(self, text="F", padx=40, pady=20, command=lambda: self._forward())
+		self.forward.grid(row=3, column=2)
+		self.backwards = tkinter.Button(self, text="B", padx=40, pady=20, command=lambda: self._backwards())
+		self.backwards.grid(row=3, column=1)
+		
+	def _update_tiles(self):
+		for y in range(3):
+			for x in range(3):
+				self._tiles_list[y][x]["text"] = self._soln_set[self._pointer][x][y]
+		#self._update_btns()
+	"""	
+	def _update_btns(self):
+		self.backwards["state"] = self.forward["state"] = tkinter.NORMAL
+		if self._pointer == 0:
+			self.backwards["state"] = tkinter.DISABLED
+		if self._pointer == len(self._soln_set)-1:
+			self.forward["state"] = tkinter.DISABLED
+	"""	
+	def _forward(self): 
+		self._pointer += 1
+		self._update_tiles()
+	
+	def _backwards(self):
+		self._pointer -= 1
+		self._update_tiles()
 
 if __name__ == "__main__":
 	if len(sys.argv) == 1: 
