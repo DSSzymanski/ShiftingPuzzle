@@ -83,8 +83,17 @@ class SolnFrame(tkinter.Frame):
 		self._tiles_list = []
 		self._soln_set = soln_set
 		
+		self._get_images()
 		self._init_tiles()
 		self._init_btns()
+		self._update_tiles()
+		
+	def _get_images(self):
+		#setup btn images
+		forward_img_path = r"images/forward_arrow.png"
+		backwards_img_path = r"images/backwards_arrow.png"
+		self.forward_arrow = tkinter.PhotoImage(file=forward_img_path)
+		self.backwards_arrow = tkinter.PhotoImage(file=backwards_img_path)
 		
 	#sets up tiles in grid
 	def _init_tiles(self):
@@ -95,27 +104,27 @@ class SolnFrame(tkinter.Frame):
 			for x in range(row_len):
 				self._tiles_list[y].append(tkinter.Button(self, padx=40, pady=20, state=tkinter.DISABLED))
 				self._tiles_list[y][x].grid(row=x, column=y)
-		self._update_tiles()
 				
 	def _init_btns(self):
-		self.forward = tkinter.Button(self, text="F", padx=40, pady=20, command=lambda: self._forward())
+		self.forward = tkinter.Button(self, image=self.forward_arrow, command=lambda: self._forward())
 		self.forward.grid(row=3, column=2)
-		self.backwards = tkinter.Button(self, text="B", padx=40, pady=20, command=lambda: self._backwards())
-		self.backwards.grid(row=3, column=1)
+		self.backwards = tkinter.Button(self, image=self.backwards_arrow, command=lambda: self._backwards())
+		self.backwards.grid(row=3, column=0)
+		self.grid_rowconfigure(3, minsize=50)
 		
 	def _update_tiles(self):
 		for y in range(3):
 			for x in range(3):
 				self._tiles_list[y][x]["text"] = self._soln_set[self._pointer][x][y]
-		#self._update_btns()
-	"""	
+		self._update_btns()
+	
 	def _update_btns(self):
 		self.backwards["state"] = self.forward["state"] = tkinter.NORMAL
 		if self._pointer == 0:
 			self.backwards["state"] = tkinter.DISABLED
 		if self._pointer == len(self._soln_set)-1:
 			self.forward["state"] = tkinter.DISABLED
-	"""	
+	
 	def _forward(self): 
 		self._pointer += 1
 		self._update_tiles()
