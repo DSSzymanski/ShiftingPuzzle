@@ -43,6 +43,7 @@ class PuzzleFrame(tkinter.Frame):
 		self._init_tiles()
 		self.solve_btn = tkinter.Button(self, text="Solve", command=lambda: self.solve())
 		self.solve_btn.grid(row=3, column=1)
+		self.grid_rowconfigure(3, minsize=50)
 		self.ERROR_MSG = "Tiles must represent 0-8, not repeating. Tiles 0-2 represents the top row, 3-5 the middle, and 6-8 the bottom row."
 	
 	#sets up tiles in grid
@@ -50,7 +51,7 @@ class PuzzleFrame(tkinter.Frame):
 		tile_size = 9
 		row_len = 3
 		for i in range(tile_size):
-			self._tiles_list.append(tkinter.Button(self, text=i, padx=40, pady=20))
+			self._tiles_list.append(tkinter.Button(self, text=0, padx=40, pady=20))
 			self._tiles_list[i].grid(row=floor(i/row_len), column=i%row_len)
 		
 	#increments button values by 1, after 8 gets set to 0
@@ -116,13 +117,17 @@ class SolnFrame(tkinter.Frame):
 				self._tiles_list[y].append(tkinter.Button(self, padx=40, pady=20, state=tkinter.DISABLED))
 				self._tiles_list[y][x].grid(row=x, column=y)
 	
-	#initializes forwards and backwards buttons and adds them to grid			
+	#initializes forwards, backwards buttons and adds them to grid
+	#initializes button to go back to puzzle frame and adds to grid
 	def _init_btns(self):
 		self.forward = tkinter.Button(self, image=self.forward_arrow, command=lambda: self._forward())
 		self.forward.grid(row=3, column=2)
 		self.backwards = tkinter.Button(self, image=self.backwards_arrow, command=lambda: self._backwards())
 		self.backwards.grid(row=3, column=0)
 		self.grid_rowconfigure(3, minsize=50)
+		
+		self.to_puzzle = tkinter.Button(self, text="New Puzzle", command=lambda: self.master.get_puzzle_frame())
+		self.to_puzzle.grid(row=4, column = 1)
 		
 	"""
 	maps tiles to new state after forward/backwards button is clicked
