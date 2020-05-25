@@ -14,6 +14,7 @@ from math import floor
 class ShiftingPuzzleGUI(tkinter.Tk):
 	def __init__(self):
 		tkinter.Tk.__init__(self)
+		self.box_size = 100
 		self._frame = None
 		self.get_puzzle_frame()
 	
@@ -39,9 +40,16 @@ class ShiftingPuzzleGUI(tkinter.Tk):
 class PuzzleFrame(tkinter.Frame):
 	def __init__(self, master):
 		tkinter.Frame.__init__(self, master)
-		self._tiles_list = []
+		self._tiles_list = [tkinter.Button] * 9
 		self._init_tiles()
-		self.solve_btn = tkinter.Button(self, text="Solve", command=lambda: self.solve())
+		self.solve_btn = tkinter.Button(
+			  self, 
+			  padx=self.master.box_size-20, 
+			  text="Solve", 
+			  bg='#ffffff',
+			  fg='red', 
+			  font=("Times New Roman", 16),
+			  command=lambda: self.solve())
 		self.solve_btn.grid(row=3, column=1)
 		self.grid_rowconfigure(3, minsize=50)
 		self.ERROR_MSG = "Tiles must represent 0-8, not repeating. Tiles 0-2 represents the top row, 3-5 the middle, and 6-8 the bottom row."
@@ -51,7 +59,17 @@ class PuzzleFrame(tkinter.Frame):
 		tile_size = 9
 		row_len = 3
 		for i in range(tile_size):
-			self._tiles_list.append(tkinter.Button(self, text=0, padx=40, pady=20))
+			self._tiles_list[i] = tkinter.Button(
+			  self, 
+			  text=0,
+			  bg='#ffffff',
+			  fg='red',
+  			  padx=self.master.box_size, 
+			  pady=self.master.box_size,
+  			  font=("Times New Roman", 20),
+			  #index = i needed to maintain mapping to correct tile
+			  command=lambda index=i: self.button_increment(self._tiles_list[index])
+			)
 			self._tiles_list[i].grid(row=floor(i/row_len), column=i%row_len)
 		
 	#increments button values by 1, after 8 gets set to 0
@@ -71,7 +89,6 @@ class PuzzleFrame(tkinter.Frame):
 	"""
 	def solve(self):
 		puzzle = self.get_tiles()
-		puzzle = [8,1,2,3,4,5,6,7,0]
 		if Puzzle.validate(puzzle):
 			puzzle = Puzzle.puzzle_converter(puzzle)
 			soln = H.heuristic(puzzle)
@@ -98,7 +115,7 @@ class SolnFrame(tkinter.Frame):
 		self._get_images() 
 		self._init_tiles()
 		self._init_btns()
-		self._update_tiles()
+		self._update()
 		
 	#setup btn images
 	def _get_images(self):
@@ -114,30 +131,42 @@ class SolnFrame(tkinter.Frame):
 		for y in range(col_len):
 			self._tiles_list.append([])
 			for x in range(row_len):
-				self._tiles_list[y].append(tkinter.Button(self, padx=40, pady=20, state=tkinter.DISABLED))
+				self._tiles_list[y].append(tkinter.Button(
+				  self, 
+				  padx=self.master.box_size, 
+				  pady=self.master.box_size,
+				  bg='#ffffff',
+				  fg='red', 
+				  font=("Times New Roman", 20),
+  				))
 				self._tiles_list[y][x].grid(row=x, column=y)
 	
 	#initializes forwards, backwards buttons and adds them to grid
 	#initializes button to go back to puzzle frame and adds to grid
 	def _init_btns(self):
-		self.forward = tkinter.Button(self, image=self.forward_arrow, command=lambda: self._forward())
+		self.forward = tkinter.Button(self, image=self.forward_arrow, bg='white', command=lambda: self._forward())
 		self.forward.grid(row=3, column=2)
-		self.backwards = tkinter.Button(self, image=self.backwards_arrow, command=lambda: self._backwards())
+		self.backwards = tkinter.Button(self, image=self.backwards_arrow, bg='white', command=lambda: self._backwards())
 		self.backwards.grid(row=3, column=0)
 		self.grid_rowconfigure(3, minsize=50)
 		
-		self.to_puzzle = tkinter.Button(self, text="New Puzzle", command=lambda: self.master.get_puzzle_frame())
-		self.to_puzzle.grid(row=4, column = 1)
+		self.to_puzzle = tkinter.Button(
+				self, 
+				text="New Puzzle", 
+				bg='#ffffff',
+			    fg='red', 
+			    font=("Times New Roman", 16),
+				command=lambda: self.master.get_puzzle_frame())
+		self.to_puzzle.grid(row=4, column=1)
 		
 	"""
-	maps tiles to new state after forward/backwards button is clicked
+	Maps tiles to new state after forward/backwards button is clicked
 	or solution frame is initialized
 	"""
 	def _update_tiles(self):
 		for y in range(3):
 			for x in range(3):
 				self._tiles_list[y][x]["text"] = self._soln_set[self._pointer][x][y]
-		self._update_btns()
 	
 	"""
 	checks which state soln frame is in with pointer. 
@@ -151,18 +180,31 @@ class SolnFrame(tkinter.Frame):
 		if self._pointer == len(self._soln_set)-1:
 			self.forward["state"] = tkinter.DISABLED
 	
+	#updates label for current step
+	def _update_text(self):
+		step_text = f"Step: {self._pointer + 1}/{len(self._soln_set)}"
+		step_label =tkinter.Label(self, text=step_text)
+		step_label.grid(row=3, column=1)
+		
+	def _update(self):
+		self._update_tiles()
+		self._update_btns()
+		self._update_text()
+	
 	#increments state pointer forward one state and updates tiles
 	def _forward(self): 
 		self._pointer += 1
-		self._update_tiles()
+		self._update()
 	
 	#decrements state pointer backwards one state and updates tiles
 	def _backwards(self):
 		self._pointer -= 1
-		self._update_tiles()
+		self._update()
 
 if __name__ == "__main__":
 	if len(sys.argv) == 1: 
 		gui = ShiftingPuzzleGUI()
+		gui.title("Shifting Puzzle Solver")
+		gui.eval('tk::PlaceWindow . center')
 		gui.mainloop()
 	else: Console.console_solve(sys.argv[1:])
