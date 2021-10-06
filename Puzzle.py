@@ -22,7 +22,7 @@ Classes:
             puzzle_converter(list[str) -> none
             swap(list[list[int]], list[list[int]]) -> none
             puzzle_printer() -> none
-            state_maker() -> list[list[list[int]]]
+            get_soln_states() -> list[list[list[int]]]
 """
 from collections import Counter
 from copy import deepcopy
@@ -70,7 +70,7 @@ class Puzzle:
         x,y location attile2.
     puzzle_printer() -> none:
         prints the puzzle attr. to console.
-    state_maker() -> list[list[list[int]]]:
+    get_soln_states() -> list[list[list[int]]]:
         takes initial puzzle and applies all the moves in the moves attr. recording
         the states along the way and returns a list of the puzzle states needed
         to solve the puzzle.
@@ -204,7 +204,7 @@ class Puzzle:
         for i in range(3):
             print(self.puzzle[i])
 
-    def state_maker(self):
+    def get_soln_states(self):
         """
         Converts the initial puzzle using the stored list of moves to create
         and return a list of puzzle states representing a solution.

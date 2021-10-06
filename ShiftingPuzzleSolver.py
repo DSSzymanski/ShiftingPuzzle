@@ -1,6 +1,6 @@
 #import Console
-from Puzzle import Puzzle
-import Heuristic as H
+from puzzle import Puzzle
+import heuristic as H
 import sys
 import tkinter
 from tkinter import messagebox
@@ -96,7 +96,7 @@ class PuzzleFrame(tkinter.Frame):
         if Puzzle.validate(self.get_tiles()):
             puzzle = Puzzle(self.get_tiles())
             puzzle = H.heuristic(puzzle)
-            soln_set = puzzle.state_maker()
+            soln_set = puzzle.get_soln_states()
             self.master.get_soln_frame(soln_set)
         else:
             messagebox.showerror(title="Input error", message=self.ERROR_MSG)
