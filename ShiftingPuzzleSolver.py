@@ -94,7 +94,7 @@ class PuzzleFrame(tkinter.Frame):
     """
     def solve(self):
         if Puzzle.validate(self.get_tiles()):
-            puzzle = Puzzle(Puzzle.puzzle_converter(self.get_tiles()))
+            puzzle = Puzzle(self.get_tiles())
             puzzle = H.heuristic(puzzle)
             soln_set = puzzle.state_maker()
             self.master.get_soln_frame(soln_set)
