@@ -1,3 +1,25 @@
+"""
+
+Classes:
+    ShiftingPuzzleGUI:
+        Constructor:
+            ShiftingPuzzleGUI()
+
+        Attributes:
+            box_size : int
+            _frame : tkinter.frame
+
+        Methods:
+            get_puzzle_frame() -> none
+            get_soln_frame(list[list[list[int]]]) -> none
+
+Global Variables:
+    BG_COLOR : str
+        global string representing hex color; used for backgrounds.
+    FONT_COLOR : str
+        global string representing hex color; used for font/foregrounds.
+"""
+
 #import Console
 from puzzle import Puzzle
 import heuristic as H
@@ -10,6 +32,27 @@ BG_COLOR = '#181a19'
 FONT_COLOR = 'red'
 
 class ShiftingPuzzleGUI(tkinter.Tk):
+    """
+    Main class used to setup tkinter window and swap between different frames.
+    Puzzle frame is used for setting up and running the shifting puzzle alg and
+    is the initial frame displayed. Solution frame is the frame used for displaying
+    the solution of puzzle states.
+
+    Attributes
+    ----------
+    box_size : int
+        used for padding sizing for gui button elements
+    _frame : tkinter.frame
+        currently displayed tkinter frame
+
+    Methods
+    -------
+    get_puzzle_frame() -> none:
+        sets main tkinter window to 'puzzle frame' for puzzle inputing.
+    get_soln_frame(list[list[list[int]]] soln_set) -> none:
+        sets main tkinter window to view inputed solution (puzzle states).
+
+    """
     def __init__(self):
         tkinter.Tk.__init__(self)
         self.box_size = 50
@@ -17,8 +60,16 @@ class ShiftingPuzzleGUI(tkinter.Tk):
         self._frame = None
         self.get_puzzle_frame()
 
-    #switch to frame for inputting puzzle
     def get_puzzle_frame(self):
+        """
+        Makes tkinter window display puzzle frame which allows buttons to be
+        incremented to setup shifting puzzle.
+
+        Returns
+        -------
+        None.
+
+        """
         new_frame = PuzzleFrame(self)
         if self._frame is not None:
             self._frame.destroy()
@@ -28,7 +79,13 @@ class ShiftingPuzzleGUI(tkinter.Tk):
     #switch to frame to view soln set
     def get_soln_frame(self, soln_set):
         """
-        :param soln_set: list of puzzle states for solution
+        Sets tkinter window to solution frame which allows viewing solutions
+        to the inputed shifting puzzle.
+
+        Parameters
+        ----------
+        soln_set : list[list[list[int]]]
+            list of puzzle states for solution
         """
         new_frame = SolnFrame(self, soln_set)
         if self._frame is not None:
@@ -37,21 +94,29 @@ class ShiftingPuzzleGUI(tkinter.Tk):
         self._frame.pack()
 
 class PuzzleFrame(tkinter.Frame):
+    """
+    Class for showing puzzle frame. Puzzle frame is the display that lets users
+    set the shifting puzzle up and initiate the algorithm to solve the puzzle.
+    To run a shifting puzzle, the buttons need to be displaying the numbers 0-8
+    non-repeating.
+
+    Attributes
+    ----------
+    _tiles_list : list[tkinter.Button]
+        list used to store the button objects which represent the puzzle tiles.
+    solve_btn : tkinter.Button
+        button used to initiate the algorithm used to find the solution set.
+    ERROR_MSG : str
+        error message that is displayed when the _tiles_list buttons aren't 0-8
+        non-repeating.
+    """
+
     def __init__(self, master):
         tkinter.Frame.__init__(self, master)
         self._tiles_list = [tkinter.Button] * 9
         self.configure(background=BG_COLOR)
         self._init_tiles()
-        self.solve_btn = tkinter.Button(
-              self,
-              padx=self.master.box_size-20,
-              text="Solve",
-              bg=BG_COLOR,
-              fg=FONT_COLOR,
-              activebackground=BG_COLOR,
-              activeforeground=FONT_COLOR,
-              font=("Times New Roman", 16),
-              command=lambda: self.solve())
+        self.solve_btn = self._init_solve_btn()
         self.solve_btn.grid(row=3, column=1)
         self.grid_rowconfigure(3, minsize=50)
         self.ERROR_MSG = "Tiles must represent 0-8, not repeating. Tiles 0-2 represents the top row, 3-5 the middle, and 6-8 the bottom row."
@@ -75,6 +140,19 @@ class PuzzleFrame(tkinter.Frame):
               command=lambda index=i: self.button_increment(self._tiles_list[index])
             )
             self._tiles_list[i].grid(row=floor(i/row_len), column=i%row_len)
+
+    def _init_solve_btn(self):
+        return tkinter.Button(
+              self,
+              padx=self.master.box_size-20,
+              text="Solve",
+              bg=BG_COLOR,
+              fg=FONT_COLOR,
+              activebackground=BG_COLOR,
+              activeforeground=FONT_COLOR,
+              font=("Times New Roman", 16),
+              command=self.solve
+         )
 
     #increments button values by 1, after 8 gets set to 0
     def button_increment(self, button):
@@ -156,14 +234,16 @@ class SolnFrame(tkinter.Frame):
             image=self.forward_arrow,
             bg=BG_COLOR,
             activebackground=BG_COLOR,
-            command=lambda: self._forward())
+            command=self._forward
+        )
         self.forward.grid(row=3, column=2)
         self.backwards = tkinter.Button(
             self,
             image=self.backwards_arrow,
             bg=BG_COLOR,
             activebackground=BG_COLOR,
-            command=lambda: self._backwards())
+            command=self._backwards
+        )
         self.backwards.grid(row=3, column=0)
         self.grid_rowconfigure(3, minsize=50)
 
@@ -175,7 +255,8 @@ class SolnFrame(tkinter.Frame):
                 activebackground=BG_COLOR,
                 activeforeground=FONT_COLOR,
                 font=("Times New Roman", 16),
-                command=lambda: self.master.get_puzzle_frame())
+                command=self.master.get_puzzle_frame
+        )
         self.to_puzzle.grid(row=4, column=1)
 
     """

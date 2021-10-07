@@ -9,10 +9,10 @@ Classes:
             Puzzle(list[int])
 
         Attributes:
-            list[list[int]] puzzle
-            list[puzzles] soln_states
-            list[list[int]] moves
-            list[list[int]] correct_puzzle
+            puzzle : list[list[int]]
+            soln_states: list[puzzles]
+            moves : list[list[int]]
+            correct_puzzle list[list[int]]
 
         Methods:
             get_puzzle_state() -> list[list[int]]
@@ -49,6 +49,20 @@ class Puzzle:
     positions (0,1) and (1,0).
 
     e.g. calling add_move([[0,1], [1,0]]) adds the move.
+
+    Attributes
+    ----------
+    puzzle : list[list[int]]
+        current state of the puzzle
+    soln_states : list[list[list[int]]]
+        list of puzzle states representing optimal solution. Filled when
+        get_soln_states() is called.
+    moves : list[list[list[int]]]
+        list of moves taken to get to current puzzle state. A move is 2 list of
+        x, y coordinate value pairs.
+    correct_puzzle : list[list[int]]
+        puzzle state representing the end/solved state to compare the current
+        state to.
 
     Methods
     -------
