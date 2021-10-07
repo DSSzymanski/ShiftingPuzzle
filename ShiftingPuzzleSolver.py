@@ -113,7 +113,7 @@ class PuzzleFrame(tkinter.Frame):
 
     def __init__(self, master):
         tkinter.Frame.__init__(self, master)
-        self._tiles_list = [tkinter.Button] * 9
+        self._tiles_list = []
         self.configure(background=BG_COLOR)
         self._init_tiles()
         self.solve_btn = self._init_solve_btn()
@@ -126,7 +126,7 @@ class PuzzleFrame(tkinter.Frame):
         tile_size = 9
         row_len = 3
         for i in range(tile_size):
-            self._tiles_list[i] = tkinter.Button(
+            self._tiles_list.append(tkinter.Button(
               self,
               text=i,
               bg=BG_COLOR,
@@ -138,7 +138,7 @@ class PuzzleFrame(tkinter.Frame):
                 font=("Times New Roman", 20),
               #index = i needed to maintain mapping to correct tile
               command=lambda index=i: self.button_increment(self._tiles_list[index])
-            )
+            ))
             self._tiles_list[i].grid(row=floor(i/row_len), column=i%row_len)
 
     def _init_solve_btn(self):
