@@ -71,8 +71,6 @@ Global Variables:
         non-repeating.
 """
 
-#import Console
-import sys
 import tkinter
 from math import floor
 from tkinter import messagebox
@@ -416,11 +414,12 @@ class SolnFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
         """
         forward_img_path = r"images/forward_arrow.png"
         backwards_img_path = r"images/backwards_arrow.png"
-
+        self.forwards_img = tkinter.PhotoImage(file=forward_img_path)
+        self.backwards_img = tkinter.PhotoImage(file=backwards_img_path)
         #setup forward button
         self.forward = tkinter.Button(
             self,
-            image=tkinter.PhotoImage(file=forward_img_path),
+            image=self.forwards_img,
             bg=BG_COLOR,
             activebackground=BG_COLOR,
             command=self._forward
@@ -430,7 +429,7 @@ class SolnFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
         #setup backwards button
         self.backwards = tkinter.Button(
             self,
-            image=tkinter.PhotoImage(file=backwards_img_path),
+            image=self.backwards_img,
             bg=BG_COLOR,
             activebackground=BG_COLOR,
             command=self._backwards
@@ -534,11 +533,3 @@ class SolnFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
         """
         self._pointer -= 1
         self._update()
-
-if __name__ == "__main__":
-    if len(sys.argv) == 1:
-        gui = ShiftingPuzzleGUI()
-        gui.title("Shifting Puzzle Solver")
-        gui.eval('tk::PlaceWindow . center')
-        gui.mainloop()
-    #else: Console.console_solve(sys.argv[1:])
