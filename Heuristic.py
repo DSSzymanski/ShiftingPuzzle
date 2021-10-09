@@ -85,7 +85,9 @@ def heuristic(puzzle):
                         found_states.add(str(new_puzzle.get_puzzle_state()))
                         curr_heuristic = new_heuristic
                         new_puzzle.add_move([[i, j], move])
-                        return new_puzzle if new_puzzle.puzzle_check() else queue.append(new_puzzle)
+                        if new_puzzle.puzzle_check():
+                            return new_puzzle
+                        queue.append(new_puzzle)
 
 def _generate_moves(x_cord, y_cord):
     """
