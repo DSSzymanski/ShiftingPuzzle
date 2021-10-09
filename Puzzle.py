@@ -21,7 +21,7 @@ Classes:
             add_move(list[list[int]]) -> none
             puzzle_converter(list[str) -> none
             swap(list[list[int]], list[list[int]]) -> none
-            puzzle_printer() -> none
+            static puzzle_printer(list[list[int]]) -> none
             get_soln_states() -> list[list[list[int]]]
 """
 from collections import Counter
@@ -82,8 +82,8 @@ class Puzzle:
     swap(list[list[int]] tile1, list[list[int]] tile2) -> none:
         swaps the values of the puzzle attr at the x,y location at tile1 with the
         x,y location attile2.
-    puzzle_printer() -> none:
-        prints the puzzle attr. to console.
+    static puzzle_printer(list[list[int]] puzzle) -> none:
+        prints the inputted puzzle state to console.
     get_soln_states() -> list[list[list[int]]]:
         takes initial puzzle and applies all the moves in the moves attr. recording
         the states along the way and returns a list of the puzzle states needed
@@ -206,7 +206,8 @@ class Puzzle:
         self.puzzle[tile1[0]][tile1[1]], self.puzzle[tile2[0]][tile2[1]] = \
                self.puzzle[tile2[0]][tile2[1]], self.puzzle[tile1[0]][tile1[1]]
 
-    def puzzle_printer(self):
+    @staticmethod
+    def puzzle_printer(puzzle):
         """
         Prints the current puzzle to console
 
@@ -216,7 +217,7 @@ class Puzzle:
 
         """
         for i in range(3):
-            print(self.puzzle[i])
+            print(puzzle[i])
 
     def get_soln_states(self):
         """
