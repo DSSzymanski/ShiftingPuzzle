@@ -117,6 +117,15 @@ class Puzzle:
         return self.puzzle
 
     def get_zero_pos(self):
+        """
+        Gets the position of 0 in the current puzzle state.
+
+        Returns
+        -------
+        list
+            list containing the x,y positioning of 0.
+
+        """
         for idx, valx in enumerate(self.puzzle):
             for idy, valy in enumerate(valx):
                 if valy == 0:

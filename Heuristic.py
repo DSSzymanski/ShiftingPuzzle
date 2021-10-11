@@ -26,14 +26,61 @@ _get_heuristic(Puzzle puzzle) -> int:
 import queue as Q
 from copy import deepcopy
 
+def heuristic_shift(puzzle):
+    """
+    Main function to run the shifting puzzle. Function takes in a Puzzle object
+    and runs BFS on it's state to find the optimal solution. If no solution exists,
+    function will run until it examines every possible state. Adds [-1] to puzzle
+    moves if no solution exists.
+
+    Parameters
+    ----------
+    puzzle : Puzzle
+        initial puzzle configuration to begin searching.
+
+    Returns
+    -------
+    Puzzle
+        Returns puzzle with moves/solution state attributes filled.
+
+    """
+    #base case
+    if puzzle.puzzle_check() is True:
+        return puzzle
+
+    #initialize data structures
+    queue = Q.Queue()
+    queue.put(puzzle)
+    found_states = set(str(puzzle.get_puzzle_state()))
+
+    #bfs for solution state
+    while not queue.empty():
+        puzzle = queue.get()
+        zero = puzzle.get_zero_pos()
+        moves = _generate_moves(zero[0], zero[1])
+        for move in moves:
+            new_puzzle = deepcopy(puzzle)
+            new_puzzle.swap(zero, move)
+
+            #if state already seen, continue to next state
+            if str(new_puzzle.get_puzzle_state()) in found_states:
+                continue
+
+            new_puzzle.add_move([zero, move])
+            if new_puzzle.puzzle_check():
+                return new_puzzle
+            queue.put(new_puzzle)
+            found_states.add(str(new_puzzle.get_puzzle_state()))
+    puzzle.add_move([-1])
+
 def heuristic_swap(puzzle):
     """
     Heuristic takes in puzzle and uses a queue to find the shortest path through
-    the shifting puzzle. The puzzle is examined to find every possible move and
-    a new puzzle is generated with each move and if it has a lower or equal
-    heuristic value to the current best, adds it that puzzle to the queue. Once
-    a puzzle is found with a completed board, it is returned with the moves stored
-    inside of it.
+    the puzzle by swapping any tiles. The puzzle is examined to find every
+    possible move and a new puzzle is generated with each move. If the puzzle
+    hasn't been seen yet, it adds the puzzle and it's heuristic value to the
+    priority queue. Once a puzzle is found with a completed board, it is
+    returned with the moves stored inside of it.
 
     Parameters
     ----------
