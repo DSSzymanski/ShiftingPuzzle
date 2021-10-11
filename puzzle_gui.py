@@ -279,7 +279,7 @@ class PuzzleFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
         """
         if Puzzle.validate(self._get_tiles()):
             puzzle = Puzzle(self._get_tiles())
-            puzzle = H.heuristic(puzzle)
+            puzzle = H.heuristic_swap(puzzle)
             soln_set = puzzle.get_soln_states()
             self.master.get_soln_frame(soln_set)
         else:

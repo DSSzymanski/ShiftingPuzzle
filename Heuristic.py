@@ -23,10 +23,10 @@ _get_heuristic(Puzzle puzzle) -> int:
     returns the heuristic value indicating how close a state is to being complete.
 
 """
-from collections import deque
+import queue as Q
 from copy import deepcopy
 
-def heuristic(puzzle):
+def heuristic_swap(puzzle):
     """
     Heuristic takes in puzzle and uses a queue to find the shortest path through
     the shifting puzzle. The puzzle is examined to find every possible move and
@@ -51,15 +51,12 @@ def heuristic(puzzle):
         return puzzle
 
     #initialize data structures
-    queue = deque()
-    queue.append(puzzle)
+    queue = Q.PriorityQueue()
+    queue.put((0, puzzle))
     found_states = set()
 
-    #used to weed out moves that result in a worst heuristic value
-    curr_heuristic = _get_heuristic(puzzle.get_puzzle_state())
-
     while True:
-        puzzle_state = queue.popleft()
+        _, puzzle_state = queue.get()
 
         #loop used to generate every move from every tile location
         for i in range(3):
@@ -75,19 +72,13 @@ def heuristic(puzzle):
                     new_puzzle.swap([i, j], move)
                     new_heuristic = _get_heuristic(new_puzzle.get_puzzle_state())
 
-
-                    #Checks if heuristic is a good move and puzzle hasnt been
-                    #seen yet. If so, updates and checks if puzzle is solved. If
-                    #it is, returns, else adds to the queue and updates best
-                    #heuristic
-                    if new_heuristic <= curr_heuristic and \
-                        str(new_puzzle.get_puzzle_state()) not in found_states:
-                        found_states.add(str(new_puzzle.get_puzzle_state()))
-                        curr_heuristic = new_heuristic
-                        new_puzzle.add_move([[i, j], move])
-                        if new_puzzle.puzzle_check():
-                            return new_puzzle
-                        queue.append(new_puzzle)
+                    if str(new_puzzle.get_puzzle_state()) in found_states:
+                        continue
+                    found_states.add(str(new_puzzle.get_puzzle_state()))
+                    new_puzzle.add_move([[i, j], move])
+                    if new_puzzle.puzzle_check():
+                        return new_puzzle
+                    queue.put((new_heuristic, new_puzzle))
 
 def _generate_moves(x_cord, y_cord):
     """
@@ -144,15 +135,15 @@ def _get_tile_loc_dict():
         returns a lookup dict for where each tile should be.
     """
     tiles = {}
-    tiles[0] = [0,0]
-    tiles[1] = [0,1]
-    tiles[2] = [0,2]
-    tiles[3] = [1,0]
-    tiles[4] = [1,1]
-    tiles[5] = [1,2]
-    tiles[6] = [2,0]
-    tiles[7] = [2,1]
-    tiles[8] = [2,2]
+    tiles[1] = [0,0]
+    tiles[2] = [0,1]
+    tiles[3] = [0,2]
+    tiles[4] = [1,0]
+    tiles[5] = [1,1]
+    tiles[6] = [1,2]
+    tiles[7] = [2,0]
+    tiles[8] = [2,1]
+    tiles[0] = [2,2]
 
     return tiles
 
