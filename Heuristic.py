@@ -26,7 +26,7 @@ _get_heuristic(Puzzle puzzle) -> int:
 import queue as Q
 from copy import deepcopy
 
-def heuristic_shift(puzzle):
+def BFS_shift(puzzle):
     """
     Main function to run the shifting puzzle. Function takes in a Puzzle object
     and runs BFS on it's state to find the optimal solution. If no solution exists,
@@ -72,6 +72,7 @@ def heuristic_shift(puzzle):
             queue.put(new_puzzle)
             found_states.add(str(new_puzzle.get_puzzle_state()))
     puzzle.add_move([-1])
+    return puzzle
 
 def heuristic_swap(puzzle):
     """

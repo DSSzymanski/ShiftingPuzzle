@@ -26,9 +26,7 @@ Classes:
 """
 from collections import Counter
 from copy import deepcopy
-from dataclasses import dataclass, field
 
-@dataclass(order=True)
 class Puzzle:
     """
     The Puzzle class is used to store the data and manipulate puzzle states.
@@ -91,7 +89,6 @@ class Puzzle:
         the states along the way and returns a list of the puzzle states needed
         to solve the puzzle.
     """
-    puzzle: list=field(compare=False)
 
     def __init__(self, puzzle):
         self.puzzle = []
@@ -103,6 +100,9 @@ class Puzzle:
                                     [4,5,6],
                                     [7,8,0]
                                 ]
+        
+    def __lt__(self, other):
+        return len(self.moves) < len(other.moves)
 
     def get_puzzle_state(self):
         """
