@@ -40,6 +40,8 @@ Classes:
 
         Methods:
             _init_tiles() -> none
+            _init_random_btn() -> tkinter.Button
+            _randomize -> none
             _init_solve_btn() -> tkinter.Button
             _button_increment(tkinter.Button) -> none
             shift_solve() -> none
@@ -75,6 +77,7 @@ Global Variables:
 
 import threading
 import tkinter
+import random
 from math import floor
 from tkinter import messagebox
 from puzzle import Puzzle
@@ -170,6 +173,10 @@ class PuzzleFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
     -------
     _init_tiles() -> none:
         initializes the tkinter.buttons used for the shifting puzzle tiles.
+    _init_random_btn() -> tkinter.Button:
+        button that randomizes tile buttons to a new puzzle state on click.
+    _randomize() -> none:
+        randomizes the tile buttons to a new puzzle.
     _init_solve_btn() -> tkinter.Button:
         initializes the solve button for starting the algorithm.
     _button_increment(tkinter.button button) -> none:
@@ -197,6 +204,8 @@ class PuzzleFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
         self.shift_btn.grid(row=3, column=0)
         self.swap_btn = self._init_solve_btn('Swap', self.swap_solve)
         self.swap_btn.grid(row=3, column=1)
+        self.random_btn = self._init_random_btn()
+        self.random_btn.grid(row=3, column=2)
         self.grid_rowconfigure(3, minsize=50)
 
 
@@ -228,9 +237,9 @@ class PuzzleFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
             ))
             self._tiles_list[i].grid(row=floor(i/row_len), column=i%row_len)
 
-    def _init_solve_btn(self, text, command):
+    def _init_random_btn(self):
         """
-        Method used for initializing the swapping solve button. When clicked, 
+        Method used for initializing the swapping solve button. When clicked,
         the solve button starts the algorithm that's used to find the optimal
         solution states and later changes the main frame.
 
@@ -238,6 +247,43 @@ class PuzzleFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
         -------
         tkinter.Button
             returns a set-up button used for initiating the solving algorithm.
+
+        """
+        return tkinter.Button(
+              self,
+              padx=self.master.box_size-20,
+              text="Random",
+              bg=BG_COLOR,
+              fg=FONT_COLOR,
+              activebackground=BG_COLOR,
+              activeforeground=FONT_COLOR,
+              font=("Times New Roman", 12),
+              command=self._randomize
+         )
+
+    def _randomize(self):
+        """
+        Function that generates a random valid puzzle and sets the button tiles
+        to that puzzle
+
+        Returns
+        -------
+        None.
+
+        """
+        nums = [0,1,2,3,4,5,6,7,8]
+        random.shuffle(nums)
+        for idx, tile in enumerate(self._tiles_list):
+            tile['text'] = nums[idx]
+
+    def _init_solve_btn(self, text, command):
+        """
+        Method used for randomizing the tile buttons to get a new puzzle combination.
+
+        Returns
+        -------
+        tkinter.Button
+            returns a set-up button used for generating a random puzzle.
 
         """
         return tkinter.Button(
