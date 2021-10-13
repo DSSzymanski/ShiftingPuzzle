@@ -35,13 +35,15 @@ Classes:
 
         Attributes:
             _tiles_list : list[tkinter.Button]
-            solve_btn : tkinter.Button
+            shift_btn : tkinter.Button
+            swap_btn : tkinter.Button
 
         Methods:
             _init_tiles() -> none
             _init_solve_btn() -> tkinter.Button
             _button_increment(tkinter.Button) -> none
-            solve() -> none
+            shift_solve() -> none
+            swap_solve() -> none
             _get_tiles() -> list[str]
 
     SolnFrame:
@@ -71,6 +73,7 @@ Global Variables:
         non-repeating.
 """
 
+import threading
 import tkinter
 from math import floor
 from tkinter import messagebox
@@ -101,7 +104,7 @@ class ShiftingPuzzleGUI(tkinter.Tk):
     get_puzzle_frame() -> none:
         sets main tkinter window to 'puzzle frame' for puzzle inputing.
     get_soln_frame(list[list[list[int]]] soln_set) -> none:
-        sets main tkinter window to view inputed solution (puzzle states).
+        sets maifn tkinter window to view inputed solution (puzzle states).
 
     """
     def __init__(self):
@@ -156,8 +159,12 @@ class PuzzleFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
     ----------
     _tiles_list : list[tkinter.Button]
         list used to store the button objects which represent the puzzle tiles.
-    solve_btn : tkinter.Button
-        button used to initiate the algorithm used to find the solution set.
+    shift_btn : tkinter.Button
+        button used to initiate the bfs shifting algorithm used to find the
+        solution set.
+    swap_btn : tkinter.Button
+        button used to initiate the heuristic swap algorithm used to find the
+        solution set.
 
     Methods
     -------
@@ -167,8 +174,10 @@ class PuzzleFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
         initializes the solve button for starting the algorithm.
     _button_increment(tkinter.button button) -> none:
         increments input button text by 1.
-    solve() -> none:
-        validates button tiles, runs main solving algorithm, and changes frame.
+    swap_solve() -> none:
+        validates button tiles, runs main swap solving algorithm, and changes frame.
+    shift_solve() -> none:
+        validates button tiles, runs main shift solving algorithm, and changes frame.
     _get_tiles() -> list[str]:
         returns a list of strings from the tile button texts.
     """
@@ -184,8 +193,10 @@ class PuzzleFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
         self._tiles_list = []
         self.configure(background=BG_COLOR)
         self._init_tiles()
-        self.solve_btn = self._init_solve_btn()
-        self.solve_btn.grid(row=3, column=1)
+        self.shift_btn = self._init_solve_btn('Shift', self.shift_solve)
+        self.shift_btn.grid(row=3, column=0)
+        self.swap_btn = self._init_solve_btn('Swap', self.swap_solve)
+        self.swap_btn.grid(row=3, column=1)
         self.grid_rowconfigure(3, minsize=50)
 
 
@@ -217,11 +228,11 @@ class PuzzleFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
             ))
             self._tiles_list[i].grid(row=floor(i/row_len), column=i%row_len)
 
-    def _init_solve_btn(self):
+    def _init_solve_btn(self, text, command):
         """
-        Method used for initializing the solve button. When clicked, the solve
-        button starts the algorithm that's used to find the optimal solution
-        states and later changes the main frame.
+        Method used for initializing the swapping solve button. When clicked, 
+        the solve button starts the algorithm that's used to find the optimal
+        solution states and later changes the main frame.
 
         Returns
         -------
@@ -232,13 +243,13 @@ class PuzzleFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
         return tkinter.Button(
               self,
               padx=self.master.box_size-20,
-              text="Solve",
+              text=text,
               bg=BG_COLOR,
               fg=FONT_COLOR,
               activebackground=BG_COLOR,
               activeforeground=FONT_COLOR,
-              font=("Times New Roman", 16),
-              command=self.solve
+              font=("Times New Roman", 12),
+              command=threading.Thread(target=command, daemon=True).start
          )
 
     @staticmethod
@@ -263,11 +274,11 @@ class PuzzleFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
             num = 0
         button.config(text=num)
 
-    def solve(self):
+    def shift_solve(self):
         """
-        solve is the method called when the solve_button is clicked. Once clicked,
+        shift solve is the method called when the swap_button is clicked. Once clicked,
         makes sure that the buttons representing the shifting puzzle tiles are
-        a valid shifting puzzle. If they are, it initializes the solving algorithm
+        a valid puzzle. If they are, it initializes the solving algorithm
         and sets the resulting solution set as the input to change from a puzzle
         frame to a soln frame. If the tiles aren't validated, produces an error
         message box.
@@ -277,6 +288,36 @@ class PuzzleFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
         None.
 
         """
+        self.swap_btn['state'] = 'disabled'
+        self.shift_btn['state'] = 'disabled'
+        self.shift_btn['text'] = 'Running'
+        if Puzzle.validate(self._get_tiles()):
+            puzzle = Puzzle(self._get_tiles())
+            puzzle = H.bfs_shift(puzzle)
+            soln_set = puzzle.get_soln_states()
+            self.master.get_soln_frame(soln_set)
+        else:
+            #input that's failed validation throws error messagebox
+            messagebox.showerror(title="Input error", message=ERROR_MSG)
+            self.swap_btn['state'] = 'normal'
+            self.shift_btn['state'] = 'normal'
+
+    def swap_solve(self):
+        """
+        swap solve is the method called when the swap_button is clicked. Once clicked,
+        makes sure that the buttons representing the swapping puzzle tiles are
+        a valid puzzle. If they are, it initializes the solving algorithm
+        and sets the resulting solution set as the input to change from a puzzle
+        frame to a soln frame. If the tiles aren't validated, produces an error
+        message box.
+
+        Returns
+        -------
+        None.
+
+        """
+        self.swap_btn['state'] = 'disabled'
+        self.shift_btn['state'] = 'disabled'
         if Puzzle.validate(self._get_tiles()):
             puzzle = Puzzle(self._get_tiles())
             puzzle = H.heuristic_swap(puzzle)
@@ -285,6 +326,8 @@ class PuzzleFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
         else:
             #input that's failed validation throws error messagebox
             messagebox.showerror(title="Input error", message=ERROR_MSG)
+            self.swap_btn['state'] = 'normal'
+            self.shift_btn['state'] = 'normal'
 
     def _get_tiles(self):
         """
