@@ -339,7 +339,7 @@ class PuzzleFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
         self.shift_btn['text'] = 'Running'
         if Puzzle.validate(self._get_tiles()):
             puzzle = Puzzle(self._get_tiles())
-            puzzle = H.bfs_shift(puzzle)
+            puzzle = H.bfs_shift(puzzle, self.random_btn)
             soln_set = puzzle.get_soln_states()
             self.master.get_soln_frame(soln_set)
         else:
