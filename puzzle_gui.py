@@ -339,9 +339,13 @@ class PuzzleFrame(tkinter.Frame): # pylint: disable=too-many-ancestors
         self.shift_btn['text'] = 'Running'
         if Puzzle.validate(self._get_tiles()):
             puzzle = Puzzle(self._get_tiles())
-            puzzle = H.bfs_shift(puzzle, self.random_btn)
-            soln_set = puzzle.get_soln_states()
-            self.master.get_soln_frame(soln_set)
+            new_puzzle = H.bfs_shift(puzzle, self.random_btn)
+            if not new_puzzle:
+                messagebox.showerror(title="No solution", message="No solution found.")
+                self.master.get_soln_frame(puzzle.get_soln_states())
+            else:
+                soln_set = new_puzzle.get_soln_states()
+                self.master.get_soln_frame(soln_set)
         else:
             #input that's failed validation throws error messagebox
             messagebox.showerror(title="Input error", message=ERROR_MSG)

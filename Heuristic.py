@@ -72,8 +72,7 @@ def bfs_shift(puzzle, button=None):
                 return new_puzzle
             queue.put(new_puzzle)
             found_states.add(str(new_puzzle.get_puzzle_state()))
-    puzzle.add_move([-1])
-    return puzzle
+    return None
 
 def heuristic_swap(puzzle):
     """
